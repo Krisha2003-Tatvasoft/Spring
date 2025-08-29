@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.EmployeeRequest;
 import com.example.demo.dto.EmployeeResponse;
+import com.example.demo.entity.Department;
 import com.example.demo.entity.Employee;
+import com.example.demo.repository.DepartmentRepository;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.service.EmployeeService;
 
@@ -19,15 +21,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 	
 	private final EmployeeRepository emprepo;
 	
+	private final DepartmentRepository departmentRepository;
+	
 	 @Override
 	 public EmployeeResponse createEmployee(EmployeeRequest request)
 	 {
-		Employee emp = Employee.builder()
-		               .name(request.getName())
-		               .department(request.getDepartment())
-		               .build();
-		Employee created = emprepo.save(emp);
-		return mapToResponse(created);
+		  Department dept = departmentRepository.findById(request.getDepartmentId())
+	                .orElseThrow(() -> new EntityNotFoundException("Department not found"));
+
+	        Employee emp = Employee.builder()
+	                .name(request.getName())
+	                .department(dept)
+	                .build();
+
+	        Employee created = emprepo.save(emp);
+	        return mapToResponse(created);
      }
 
 	 @Override
@@ -52,8 +60,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 		 Employee emp = emprepo.findById(id)
 			       .orElseThrow(()-> new EntityNotFoundException("Employee not found with id: " + id));
 
+		   Department dept = departmentRepository.findById(request.getDepartmentId())
+	                .orElseThrow(() -> new EntityNotFoundException("Department not found"));
+
 	        emp.setName(request.getName());
-	        emp.setDepartment(request.getDepartment());
+	        emp.setDepartment(dept);
 
 	        Employee updated = emprepo.save(emp);
 	        return mapToResponse(updated);
@@ -68,43 +79,43 @@ public class EmployeeServiceImpl implements EmployeeService {
 	    }
 	    
 	    
-	    public List<EmployeeResponse> getEmployeesByDepartment(String department) {
-	        List<Employee> employees = emprepo.findByDepartment(department);
-	        if (employees.isEmpty()) {
-	            throw new EntityNotFoundException("No employees found in department: " + department);
-	        }
-	        return employees.stream()
-	        		.map(this::mapToResponse)
-	        		.toList();
-	    }
-
-	    public List<EmployeeResponse> searchEmployeesByName(String keyword) {
-	        List<Employee> employees = emprepo.findByNameContains(keyword);
-	        if (employees.isEmpty()) {
-	            throw new EntityNotFoundException("No employees found with name containing: " + keyword);
-	        }
-	        return employees.stream()
-	        		.map(this::mapToResponse)
-	        		.toList();
-	    }
-
-	    public List<EmployeeResponse> getEmployeesByDepartmentSorted(String department) {
-	        List<Employee> employees = emprepo.findByDepartmentSortedByName(department);
-	        if (employees.isEmpty()) {
-	            throw new EntityNotFoundException("No employees found in department: " + department);
-	        }
-	        return employees.stream()
-	        		.map(this::mapToResponse)
-	        		.toList();
-	    }
-	    
-	    
+//	    public List<EmployeeResponse> getEmployeesByDepartment(String department) {
+//	        List<Employee> employees = emprepo.findByDepartment(department);
+//	        if (employees.isEmpty()) {
+//	            throw new EntityNotFoundException("No employees found in department: " + department);
+//	        }
+//	        return employees.stream()
+//	        		.map(this::mapToResponse)
+//	        		.toList();
+//	    }
+//
+//	    public List<EmployeeResponse> searchEmployeesByName(String keyword) {
+//	        List<Employee> employees = emprepo.findByNameContains(keyword);
+//	        if (employees.isEmpty()) {
+//	            throw new EntityNotFoundException("No employees found with name containing: " + keyword);
+//	        }
+//	        return employees.stream()
+//	        		.map(this::mapToResponse)
+//	        		.toList();
+//	    }
+//
+//	    public List<EmployeeResponse> getEmployeesByDepartmentSorted(String department) {
+//	        List<Employee> employees = emprepo.findByDepartmentSortedByName(department);
+//	        if (employees.isEmpty()) {
+//	            throw new EntityNotFoundException("No employees found in department: " + department);
+//	        }
+//	        return employees.stream()
+//	        		.map(this::mapToResponse)
+//	        		.toList();
+//	    }
+//	    
+//	    
 
 	 private EmployeeResponse mapToResponse(Employee emp) {
 	        return EmployeeResponse.builder()
 	                .id(emp.getId())
 	                .name(emp.getName())
-	                .department(emp.getDepartment())
+	                .department(emp.getDepartment().getName())
 	                .build();
 	    }
 	 

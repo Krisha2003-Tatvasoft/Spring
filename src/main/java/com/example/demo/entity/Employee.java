@@ -1,5 +1,10 @@
 package com.example.demo.entity;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +24,20 @@ public class Employee {
 	@Column(nullable = false)
 	private String name;
 	
-	private String department;
 	
+//	this is an owner fo r relation with department we givce FK here for Department
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "department_id")
+	private Department department;
+	
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+	    name = "employee_project",
+	    joinColumns = @JoinColumn(name = "employee_id"),
+	    inverseJoinColumns = @JoinColumn(name = "project_id")
+	)
+	@JsonManagedReference
+	@Builder.Default
+	private List<Project> projects = new java.util.ArrayList<>();
 	
 }

@@ -8,5 +8,5 @@ import lombok.*;
 @Builder
 public class EmployeeRequest {
 	 private String name;
-	 private String department;
+	 private Integer departmentId; 
 }

@@ -26,7 +26,7 @@ public class EmployeeController {
         return service.createEmployee(request);
     }
 	
-	@GetMapping("/getEmployee")
+	@GetMapping
     public List<EmployeeResponse> getAllEmployee()
     {
 		return service.GetAllEmployee();
@@ -48,20 +48,20 @@ public class EmployeeController {
         return ("Employee deleted successfully");
     }
     
-    @GetMapping("/department/{dept}")
-    public List<EmployeeResponse> getEmployeesByDepartment(@PathVariable String dept) {
-        return service.getEmployeesByDepartment(dept);
-    }
-    
-    @GetMapping("/search")
-    public List<EmployeeResponse> searchEmployeesByName(@RequestParam String keyword) {
-        return service.searchEmployeesByName(keyword);
-    }
-    
-    @GetMapping("/department/{dept}/sorted")
-    public List<EmployeeResponse> getEmployeesByDepartmentSorted(@PathVariable String dept) {
-        return service.getEmployeesByDepartmentSorted(dept);
-    }
+//    @GetMapping("/department/{dept}")
+//    public List<EmployeeResponse> getEmployeesByDepartment(@PathVariable String dept) {
+//        return service.getEmployeesByDepartment(dept);
+//    }
+//    
+//    @GetMapping("/search")
+//    public List<EmployeeResponse> searchEmployeesByName(@RequestParam String keyword) {
+//        return service.searchEmployeesByName(keyword);
+//    }
+//    
+//    @GetMapping("/department/{dept}/sorted")
+//    public List<EmployeeResponse> getEmployeesByDepartmentSorted(@PathVariable String dept) {
+//        return service.getEmployeesByDepartmentSorted(dept);
+//    }
 
 	
 }
