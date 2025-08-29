@@ -30,7 +30,7 @@ public class UserService {
 //	one method for Creating method
 	public String UserName(String name)
 	{
-		  logger.debug("UserName method called with name={}", name);
+		logger.debug("UserName method called with name={}", name);
 		if(name == null)
 		{
 			name ="User";
@@ -46,7 +46,7 @@ public class UserService {
 		{
 			name = "User";
 		}
-			String departmentName = departmentService.DepartmentName(1);
+			String departmentName = departmentService.DepartmentName(-2);
 			return name + " "+ departmentName;
 	}
 

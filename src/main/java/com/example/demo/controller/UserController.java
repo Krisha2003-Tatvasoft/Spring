@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Value;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.example.demo.service.UserService;
 
@@ -60,6 +63,75 @@ public class UserController {
 	    public String GetUserDepartment(@RequestParam(defaultValue = "User") String name) {
 	        return userService.UserDepartment(name);
 	    }
+	 
+	 
+//	 for Exception 
+	 @GetMapping("/UserId/{id}")
+	 public String getUser(@PathVariable int id)
+	 {
+		 if(id <0 )
+		 {
+			 throw new IllegalArgumentException("ID must be positive");
+		 }
+		 if (id == 0) {
+	            throw new NullPointerException("Simulated NPE");
+	        }
+	        return "user-" + id;
+	 }
+	 
+//	 @ExceptionHandler(IllegalArgumentException.class)
+//	    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+//	        return ResponseEntity
+//	                .status(HttpStatus.BAD_REQUEST) // return 400
+//	                .body("Validation Error: " + ex.getMessage());
+//	    }
+//
+//	    @ExceptionHandler(NullPointerException.class)
+//	    public ResponseEntity<String> handleNpe(NullPointerException ex) {
+//	        return ResponseEntity
+//	                .status(HttpStatus.INTERNAL_SERVER_ERROR) // still 500
+//	                .body("Unexpected error occurred: " + ex.getMessage());
+//	    }
+//	
+//	    for Global level Exception Handle
+	    
+	    @GetMapping("/UserIDGlobalEx/{id}")
+	    public String getUserGlobalEx(@PathVariable int id) {
+	        if (id < 0) throw new IllegalArgumentException("ID must be positive");
+	        if (id == 0) throw new NullPointerException("Simulated NPE");
+	        return "user-" + id;
+	    }
+	    
+//	   advanced we can Use ResponseEntityExceptionHandler =====> which is class ==> spring will handle some exception handle in global level 
+//	    u can extend that and override their default method for create your custom Error response create
+	    
+//      Add thorws when any method may throw an exception 	    
 	
-	
+	    
+//	    For special case we can handle by try catch using we can do 
+	    @GetMapping("/UserSafe/{id}")
+	    public ResponseEntity<String> getUserSafe(@PathVariable int id) {
+	        try {
+	            if (id < 0) {
+	                throw new IllegalArgumentException("ID must be positive");
+	            }
+	            if (id == 0) {
+	                throw new NullPointerException("Simulated NPE");
+	            }
+	            return ResponseEntity.ok("user-" + id);
+
+	        } catch (IllegalArgumentException ex) {
+	            // handled only in this method
+	            return ResponseEntity
+	                    .status(HttpStatus.BAD_REQUEST)
+	                    .body("Handled locally: " + ex.getMessage());
+
+	        } catch (Exception ex) {
+	            // fallback for any other exception
+	            return ResponseEntity
+	                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                    .body("Local error: " + ex.getMessage());
+	        }
+	    }
+
 }

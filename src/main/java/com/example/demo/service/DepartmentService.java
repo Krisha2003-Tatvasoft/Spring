@@ -8,6 +8,9 @@ public class DepartmentService {
 	public String DepartmentName(int id)
 	{
 		String department;
+		 if (id < 0) {
+	            throw new IllegalArgumentException("ID must be positive");
+	        }
 		if(id ==0)
 		{
 			department= "General";
