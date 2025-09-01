@@ -38,9 +38,12 @@ public class ProjectServiceImpl implements ProjectService {
 	    	            .name(request.getName())
 	    	            .employees(employees)
 	    	            .build();
-
-	    	    // Important: Set the reverse relationship
+	    	  
+// Important: Set the reverse relationship
+// add project in employee...we have mapped by in project so we have to  here so we have to add here..
+// owning side s employee so or updating a mapping table we have to save and update the owing table...
 	    	    employees.forEach(emp -> emp.getProjects().add(project));
+	    	    
 	    	    
 	    	    return projectRepository.save(project);
 	    }
