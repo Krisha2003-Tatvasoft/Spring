@@ -40,4 +40,14 @@ public class Employee {
 	@Builder.Default
 	private List<Project> projects = new java.util.ArrayList<>();
 	
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    // optional: role
+    private String role; // e.g. ROLE_USER, ROLE_ADMIN
+	    
+	
 }

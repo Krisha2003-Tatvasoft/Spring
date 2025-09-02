@@ -27,6 +27,8 @@ public interface EmployeeRepository extends JpaRepository<Employee ,Integer > {
 //    projections
 //    Modifying Query
 //    give Spesification class also..
+	
+	Employee findByUsername(String username);
     
     
 }

@@ -3,10 +3,15 @@ package com.example.demo.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.EmployeeRequest;
 import com.example.demo.dto.EmployeeResponse;
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.entity.Department;
 import com.example.demo.entity.Employee;
 import com.example.demo.entity.Project;
@@ -28,6 +33,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 	
 	private final ProjectRepository projectRepository;
 	
+	private final PasswordEncoder passwordEncoder; 
+	
+	private final AuthenticationManager authManager;
+	
+	private final jwtService jwtService;
+	
 	 @Override
 	 public EmployeeResponse createEmployee(EmployeeRequest request)
 	 {
@@ -47,11 +58,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 		                .toList();
 		    }
 		  
+		 
 		  
 	        Employee emp = Employee.builder()
 	                .name(request.getName())
 	                .department(dept)
 	                .projects(projects)
+	                .username(request.getUsername())
+	                .password(passwordEncoder.encode(request.getPassword()))  // store only encoded password
+	                .role(request.getRole())    // set role from request
 	                .build();
 
 	        Employee created = emprepo.save(emp);
@@ -113,6 +128,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 	    	 emprepo.delete(emp);
 	    }
 	    
+	    @Override
+	    public String verify(LoginRequest employee){
+	    	Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(employee.getUsername(), employee.getPassword()));
+	    	if(authentication.isAuthenticated())
+	    	{
+	    		return jwtService.generateToken(employee.getUsername());
+	    	}
+	    	return "false";
+	    }
+	    
+//	    when we call authmanager.authenticate it is call method for authenacationa and for authentication logic we write in authenticationProvider
+//	    it is like we pass a unauthorised user and it will return authenticated user 
+	    
+//	    UsernamePasswordAuthenticationToken is a Spring Security class that represents the authentication request or the authenticated user.
 	    
 //	    public List<EmployeeResponse> getEmployeesByDepartment(String department) {
 //	        List<Employee> employees = emprepo.findByDepartment(department);

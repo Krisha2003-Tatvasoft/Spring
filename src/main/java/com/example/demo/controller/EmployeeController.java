@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.EmployeeRequest;
 import com.example.demo.dto.EmployeeResponse;
-
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.service.EmployeeService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,12 @@ public class EmployeeController {
     public List<EmployeeResponse> getAllEmployee()
     {
 		return service.GetAllEmployee();
+    }
+	
+	@PostMapping("/login")
+    public String login(@RequestBody LoginRequest request) {
+		
+        return service.verify(request);
     }
 	
 	@GetMapping("/{id}")
