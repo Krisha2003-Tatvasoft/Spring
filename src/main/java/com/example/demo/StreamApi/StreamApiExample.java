@@ -13,10 +13,19 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.repository.DepartmentRepository;
+import com.example.demo.repository.EmployeeRepository;
+import com.example.demo.repository.ProjectRepository;
+
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class StreamApiExample implements CommandLineRunner  {
+	private final PasswordEncoder passwordEncoder; 
 	
 	  @Override
 	public void run(String... args) {
@@ -207,6 +216,7 @@ System.out.println(list1); // [1, 2, 3, 4, 5]
 System.out.println(list.stream().max(Comparator.naturalOrder()));
 System.out.println(list.stream().min(Comparator.naturalOrder()));
 // we can use comparator if u want to custom ordering logic
+
 
 	  }
 }

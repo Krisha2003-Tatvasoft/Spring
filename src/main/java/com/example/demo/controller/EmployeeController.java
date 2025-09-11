@@ -6,10 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.EmployeeRequest;
 import com.example.demo.dto.EmployeeResponse;
-
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.service.EmployeeService;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,19 @@ public class EmployeeController {
     public List<EmployeeResponse> getAllEmployee()
     {
 		return service.GetAllEmployee();
+    }
+	
+	@GetMapping("/favicon.ico")
+	@ResponseBody
+	public void favicon() {
+	    // do nothing
+	}
+
+	
+	@PostMapping("/login")
+    public String login(@RequestBody LoginRequest request) {
+		
+        return service.verify(request);
     }
 	
 	@GetMapping("/{id}")
@@ -62,5 +76,7 @@ public class EmployeeController {
 //        return service.getEmployeesByDepartmentSorted(dept);
 //    }
 
-	
+//	@EnableMethodSecurity and we have a like this
+//    we can d like this for authorization
+//     @PreAuthorize("hasRole('ADMIN') and hasAuthority('USER_WRITE')") custom for role and permission based access
 }

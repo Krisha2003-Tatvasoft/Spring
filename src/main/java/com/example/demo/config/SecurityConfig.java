@@ -2,14 +2,31 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.demo.service.MyUserDetailsService;
+import com.example.demo.service.impl.CustomOAuth2UserService;
+
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+
+
+import lombok.RequiredArgsConstructor;
+
 
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 //	by adding this dependency .. spring boot automatically …secure all end points..
 //	spring security works on basic http
@@ -19,49 +36,63 @@ public class SecurityConfig {
 //	@EnableWebSecurity means : this annotation signals Spring to enable it’s security …it makes web secure..and use this configrations for security
 //	websecurityconfigrerAdapter  : it is a utility class which provides a default configration and allowed customization of certain feature by extending it.
 //	configure method which we have to override : this method provide how request are secured…it defiens how request should  match…what security action should we aplpied.(which one to secure and how to secure..)
-	 
+	
+	private final MyUserDetailsService myUserDetailsService;
+	
+	private final  CustomOAuth2UserService customOAuth2UserService;
+	
+	private final JwtFilter JwtFilter;
+	
 	 @Bean
 	    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	        http
-	            .authorizeHttpRequests(authorize -> authorize
-	                .requestMatchers("/public/**").permitAll() // ✅ new method
-	                .anyRequest().authenticated()
-	            )
-	            .formLogin(withDefaults()); // optional: default login form
-
-	        return http.build();
+//	           http.csrf(customizer -> customizer.disable());
+//	           http.authorizeRequests(request -> request.anyRequest().authenticated());
+//	           http.httpBasic(Customizer.withDefaults());
+//	           http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//		  return http.build();
+//	           we can write like this 
+//		 by default it goes for authenticate use UserPassword Authentication filter
+//		 now for jwt based authenticaion we have make first filter is JWTFIlter and tell them like before UserPasswordFilter use JwtFilter and tell UsernamePasswordFilter directly continue if JWT authenticated 
+	         
+      		  return http.csrf(customizer -> customizer.disable())
+       		   .authorizeHttpRequests(request -> 
+        		             request
+        		             .requestMatchers("login").permitAll()
+    		             .anyRequest().hasAnyRole("USER" , "ADMIN"))
+	        		   .httpBasic(Customizer.withDefaults())	        		  
+	        		   .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	        		   .addFilterBefore(JwtFilter, UsernamePasswordAuthenticationFilter.class)
+     		   .build();
+		 
+//		 return http.csrf(customizer -> customizer.disable())
+//			        .authorizeHttpRequests(request -> request
+//			            .requestMatchers("/login", "/oauth2/**", "/favicon.ico", "/accounts/**").permitAll()
+//			            .anyRequest().authenticated())
+//			        .oauth2Login(oauth2 -> oauth2
+//			            .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))) // use field!
+//			        .build();
 	    }
-//	 for security 6 +
-//	 @Bean → This method creates something Spring can use globally.
-//	 SecurityFilterChain → Think of this as a series of gates that every web request must pass through.
-//	 HttpSecurity http → A helper to set up those gates: who can enter, who can’t, what kind of login to use, etc.
-//	 other same  :::: .formLogin() → Enables a login page for your app.
-//	 withDefaults() → Spring provides a default login page for you (you don’t have to create one yet).
 	 
-//	 extend with this class websecurityconfigrerAdapter
-//	 @Override
-//	 protected void configure(HttpSecurity http) throws Exception {
-//		    http
-//		        .authorizeRequests()
-//		          .antMatchers("/public/**").permitAll()  // ❌ removed in Spring Security 6
-//		          .anyRequest().authenticated()
-//		        .and()
-//		        .formLogin();
-//		}
+	 @Bean
+	    public PasswordEncoder passwordEncoder() {
+	        return new BCryptPasswordEncoder();
+	    }
+	 
+	 @Bean
+	 public AuthenticationProvider authenticationProvider() {
+		 DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		 provider.setPasswordEncoder(passwordEncoder());
+		 provider.setUserDetailsService(myUserDetailsService);
+		 return provider;
+	 }
+	 
+//	 for jwt token add we need to change in config in authentiactionManager and it is interface create an passing ac config u can cretae object of this 
+	    @Bean
+	    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+	        return config.getAuthenticationManager();
+	    }
+	 
+	 
 
-//	 earlier we have this...and this means..like this 
-//	 authorizeRequests () : this tells spring security to start authorizing the request
-//	  .antMatchers("/public/**").permitAll()  : this spesify the http request matching to this  path should be permited (allowed) for all user..they authenticated or not..
-//	 .anyRequest().authenticated() : this tell any request which not been match earier should authenticated..means user should provided creadentials
-//	         .and() : this for comes to root and start coinfigration from the root.
-//	   .formLogin(); : this provide a default login form if user is not authenticated and try to acess secure end point it will redirect to this page..like defult if u do not give custom login page
-//	 all method and their meaning in configration in security…
-//	 U can access /hello without any authentication . however if u try to access another end point u will redirect to login form.
-//	 means here if we do not give custom login page to this it will active default login form acive.
-
-//	 spring security provide default controller for handling login path it is responsible for redirect to login for default login form…
-//	 also provide a logout functionality
-
-//	 basic authentication design is stateless ==⇒ means at every request u have to pass username and password in header…so each request do not know about the other request..
 	 
 }
